@@ -1,0 +1,114 @@
+#author: Maxime Benoit-Gagne - Takuvik - Canada.
+
+# To build the C executable get_array1d_idepth_pp and the python module
+# get_array1d_idepth_pp.py containing the C function get_array1d_idepth_pp.c:
+# get_array1d_idepth_pp(...).
+
+# Compilers.
+CC=gcc
+CPP=g++
+
+########### Compilation flags for MacPorts Python. ###########
+
+# # The numpy includes.
+# NUMPY_INC=/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/numpy/core/include
+# # The Python includes.
+# PYTHON_INC=/opt/local/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7
+# # The Python library.
+# PYTHON_LIB=/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib
+
+########### Compilation flags for Anaconda Python. ###########
+
+# The numpy includes.
+NUMPY_INC= /opt/conda/lib/python2.7/site-packages/numpy/core/include
+# The Python includes.
+PYTHON_INC= /opt/conda/include/python2.7
+# The Python library.
+PYTHON_LIB= /opt/conda/lib
+
+#############################################################################
+
+FFLAGS= -g -Wall
+
+CFLAGS= -g -Wall -I$(PYTHON_INC) -I$(NUMPY_INC)
+
+LDFLAGS= -L$(PYTHON_LIB)
+
+all: get_array1d_idepth_pp _get_array1d_idepth_pp.so light _light.so
+
+clean:
+	-@rm get_array1d_idepth_pp_wrap.? *~ *.o get_array1d_idepth_pp.py light_wrap.* \
+test_subroutine_Ed0moins_at_pixel *.pyc *.so 2>/dev/null || true
+
+Color.o: Color.c Color.h
+	$(CC) $(CFLAGS) -fPIC -c $< -lm
+
+Depth: Depth.o
+	$(CPP) $(CFLAGS) $(LDFLAGS) -fPIC -o $@ $^ -lm
+
+Depth.o: Depth.cpp Depth.h Color.h
+	$(CPP) $(CFLAGS) -c -fPIC $< -lm
+
+general.o: general.c general.h
+	$(CC) $(CFLAGS) -c -fPIC $< -lm
+
+# The C executable get_array1d_idepth_pp.
+get_array1d_idepth_pp: get_array1d_idepth_pp.o Depth.o general.o light.o \
+interpolation_lut.o qaa4ppSW.o qaa4ppMA.o rscalc.o sza.o Color.o takuvik.o 
+	$(CC) $(CFLAGS) $(LDFLAGS) -lstdc++ -o $@ $^ -lm
+
+get_array1d_idepth_pp.o: get_array1d_idepth_pp.c DepthAPI.h sza.o light.h general.h \
+params.h qaa.h qaa4ppSW.h qaa4ppMA.h rscalc.h Color.h interpolation_lut.o sza.o takuvik.h \
+
+	$(CC) $(CFLAGS) -c -fPIC $< -lm
+
+# The shared library used by the python module
+# get_array1d_idepth_pp.py containing the C function get_array1d_idepth_pp.c:
+# get_array1d_idepth_pp(...).
+_get_array1d_idepth_pp.so: get_array1d_idepth_pp.o \
+get_array1d_idepth_pp_wrap.o  Depth.o general.o light.o qaa4ppSW.o \
+qaa4ppMA.o rscalc.o Color.o takuvik.o sza.o interpolation_lut.o
+	$(CC) $(LDFLAGS) -lstdc++ -o $@ -shared -lstdc++ $^ -lm
+
+get_array1d_idepth_pp_wrap.c: get_array1d_idepth_pp.i numpy.i
+	swig -python $<
+
+get_array1d_idepth_pp_wrap.o: get_array1d_idepth_pp_wrap.c
+	$(CC) $(CFLAGS) -c -fPIC $< -lstdc++ -lm
+
+interpolation_lut.o : interpolation_lut.cpp
+	$(CPP) $(CFLAGS) -c -fPIC $< -lm
+	
+light: light.o sza.o interpolation_lut.o Color.o takuvik.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -lstdc++ -o $@ $^ -lm
+
+light.o: light.c light.h sza.o interpolation_lut.o Color.h takuvik.h
+	$(CC) $(CFLAGS) -c -fPIC $< -lm
+
+## The shared library used by the python module
+## light.py containing the C function light.h:
+## get_array4d_itaucld_io3_ithetas_iwl_ed0minus(...).
+
+_light.so: light.o light_wrap.o sza.o interpolation_lut.o Color.o takuvik.o
+	$(CC) $(LDFLAGS) -o $@ -shared -lstdc++ $^ -lm
+
+light_wrap.o: light_wrap.c
+	$(CC) $(CFLAGS) -c -fpic $<
+
+light_wrap.c: light.i numpy.i
+	swig -python $< 
+
+qaa4ppSW.o: qaa4ppSW.c 
+	$(CC) $(CFLAGS) -fPIC -c $< -DTEST_QAA
+
+qaa4ppMA.o: qaa4ppMA.c
+	$(CC) $(CFLAGS) -fPIC -c $< -DTEST_QAA
+
+rscalc.o: rscalc.c rscalc.h
+	$(CC) $(CFLAGS) -fPIC -c $<
+
+sza.o: sza.c
+	$(CC) $(CFLAGS) -fPIC -c $<
+
+takuvik.o: takuvik.c takuvik.h
+	$(CC) $(CFLAGS) -fPIC -c $<

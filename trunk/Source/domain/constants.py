@@ -1,0 +1,8 @@
+########### constants ###########
+
+CLOUD_FRACTION = "CF"
+DEFAULT_FLOAT = -999.
+DEFAULT_INT = -999
+OZONE = "O3"
+CLOUD_OPTICAL_THICKNESS = "TauCld"
+NUMBER_OF_TIMESTEP_IN_DAYS = 9

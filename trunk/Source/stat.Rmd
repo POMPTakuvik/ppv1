@@ -1,0 +1,104 @@
+---
+title: "Statistics on PPhv0_36_0_0, PPhv1_2_9_1 and PPzv1_2_9_1"
+author: "Maxime Benoît-Gagné"
+date: "13 June 2017"
+output: pdf_document
+---
+
+```{r}
+options(digits = 3)
+rm(list=ls())
+
+# ## ------------------------------------------------------------------------
+# # Constants and parameters.
+# xinfile <- "../Inputs/2006/225/AM2006225_PP_v00_36_00_00.nc"
+# xchl <- "chl_gsm"
+# xpp <- "PP"
+# xheader = 'PPhv0_36_0_0'
+# yinfile <-"../Outputs/2006/225/AM2006225_pph_v01_02_09_01.nc"
+# ychl <- "chlz"
+# ypp <- "pp"
+# yheader = 'PPhv1_2_9_1'
+# zinfile <- "../Outputs/2006/225/AM2006225_ppz_v01_02_09_01.nc"
+# zchl <- "chlz"
+# zpp <- "pp"
+# zheader = 'PPzv1_2_9_1'
+# 
+# library(ncdf4)
+# 
+# # read
+# xncfile <- nc_open(xinfile)
+# array1d_ipix_xchl <- ncvar_get(
+#   nc = xncfile,
+#   varid = xchl
+# )
+# array1d_ipix_xpp <- ncvar_get(
+#   nc = xncfile,
+#   varid = xpp
+# )
+# nc_close(xncfile)
+# yncfile <- nc_open(yinfile)
+# 
+# array2d_iz_ipix_ychl <- ncvar_get(
+#   nc = yncfile,
+#   varid = ychl
+# )
+# array1d_ipix_ychl <- array2d_iz_ipix_ychl[1,]
+# 
+# array1d_ipix_ypp <- ncvar_get(
+#   nc = yncfile,
+#   varid = ypp
+# )
+# nc_close(yncfile)
+# zncfile <- nc_open(zinfile)
+# 
+# array2d_iz_ipix_zchl <- ncvar_get(
+#   nc = zncfile,
+#   varid = zchl
+# )
+# array1d_ipix_zchl <- array2d_iz_ipix_zchl[1,]
+# 
+# array1d_ipix_zpp <- ncvar_get(
+#   nc = zncfile,
+#   varid = zpp
+# )
+# nc_close(zncfile)
+# 
+# save(
+#   array1d_ipix_xchl,
+#   array1d_ipix_xpp,
+#   array1d_ipix_ychl,
+#   array1d_ipix_ypp,
+#   array1d_ipix_zchl,
+#   array1d_ipix_zpp,
+#   file = 'all.RData'
+# )
+# OR
+load('all.RData')
+
+# compute statistics
+tot           <- length(array1d_ipix_xchl)
+xchl_val      <- length(which(array1d_ipix_xchl > 0))
+xpp_val       <- length(which(array1d_ipix_xpp  > 0))
+ychl_val      <- length(which(array1d_ipix_ychl > 0))
+ypp_val       <- length(which(array1d_ipix_ypp  > 0))
+zchl_val      <- length(which(array1d_ipix_zchl > 0))
+zpp_val       <- length(which(array1d_ipix_zpp  > 0))
+```
+
+Table: Number of documented pixels for each algorithm above 45 degrees North from MODIS data.
+
+Statistics  | PPhv0_36_0_0 | PPhv1_2_9_1 | PPzv1_2_9_1
+------------| ------------ | ----------- | -----------
+Total pixels \
+| `r tot` \
+| `r tot` \
+| `r tot`
+chl(GSM)    \
+| `r xchl_val` (`r xchl_val/tot*100`%) \
+| `r ychl_val` (`r ychl_val/tot*100`%) \
+| `r zchl_val` (`r zchl_val/tot*100`%)
+pp \
+| `r xpp_val` (`r xpp_val/tot*100`%) \
+| `r ypp_val` (`r ypp_val/tot*100`%) \
+| `r zpp_val` (`r zpp_val/tot*100`%)

@@ -1,0 +1,133 @@
+#author: Maxime Benoit-Gagne - Takuvik - Canada.
+
+# To build the C executable get_array1d_idepth_pp and the python module
+# get_array1d_idepth_pp.py containing the C function get_array1d_idepth_pp.c:
+# get_array1d_idepth_pp(...).
+
+# Compilers.
+CC=gcc	    
+CPP=g++    
+FC=/usr/bin/gfortran-4.8
+
+########### Compilation flags for MacPorts Python. ###########
+
+# # The numpy includes.
+# NUMPY_INC=/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/numpy/core/include
+# # The Python includes.
+# PYTHON_INC=/opt/local/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7
+# # The Python library.
+# PYTHON_LIB=/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib
+
+########### Compilation flags for Anaconda Python. ###########
+
+# The numpy includes.
+#NUMPY_INC=$(HOME)/anaconda/lib/python2.7/site-packages/numpy/core/include
+# The Python includes.
+#PYTHON_INC=$(HOME)/anaconda/include/python2.7
+# The Python library.
+#PYTHON_LIB=$(HOME)/anaconda/lib
+
+########### Compilation flags for katak Python ###########
+
+# The numpy includes.
+NUMPY_INC=/prg/python/2.7/lib/python2.7/site-packages/numpy/core/include
+# The Python includes.
+PYTHON_INC=/prg/python/2.7/include/python2.7
+# The Python library.
+PYTHON_LIB=/prg/python/2.7/lib/python2.7
+
+#############################################################################
+
+FFLAGS= -g -Wall
+
+CFLAGS= -g -Wall -I$(PYTHON_INC) -I$(NUMPY_INC)
+
+LDFLAGS= -L$(PYTHON_LIB)
+
+all: get_array1d_idepth_pp _get_array1d_idepth_pp.so _light.so test_DepthAPI
+
+clean:
+	-@rm get_array1d_idepth_pp_wrap.? *~ *.o get_array1d_idepth_pp.py \
+*.pyc *.so 2>/dev/null || true
+
+Color.o: Color.c Color.h
+	$(CC) $(CFLAGS) -fPIC -c $<
+
+Depth: Depth.o
+	$(CPP) $(CFLAGS) $(LDFLAGS) -fPIC -o $@ $^
+
+Depth.o: Depth.cpp Depth.h Color.h
+	$(CPP) $(CFLAGS) -fPIC -c $<
+
+general.o: general.c general.h
+	$(CC) $(CFLAGS) -fPIC -c $<
+
+# The C executable get_array1d_idepth_pp.
+get_array1d_idepth_pp: get_array1d_idepth_pp.o Depth.o general.o light.o \
+qaa4ppSW.o qaa4ppMA.o rscalc.o subroutine_Ed0moins_at_pixel.o Color.o takuvik.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -lstdc++ -lm -lgfortran -o $@ $^
+
+get_array1d_idepth_pp.o: get_array1d_idepth_pp.c DepthAPI.h light.h general.h \
+params.h qaa.h qaa4ppSW.h qaa4ppMA.h rscalc.h Color.h takuvik.h
+	$(CC) $(CFLAGS) -c -fPIC $<
+
+# The shared library used by the python module
+# get_array1d_idepth_pp.py containing the C function get_array1d_idepth_pp.c:
+# get_array1d_idepth_pp(...).
+_get_array1d_idepth_pp.so: get_array1d_idepth_pp.o \
+get_array1d_idepth_pp_wrap.o  Depth.o general.o light.o qaa4ppSW.o \
+qaa4ppMA.o rscalc.o subroutine_Ed0moins_at_pixel.o Color.o takuvik.o
+	$(CC) $(LDFLAGS) -lstdc++ -lgfortran -o $@ -shared $^
+
+get_array1d_idepth_pp_wrap.c: get_array1d_idepth_pp.i numpy.i
+	swig -python $<
+
+get_array1d_idepth_pp_wrap.o: get_array1d_idepth_pp_wrap.c
+	$(CC) $(CFLAGS) -c -fPIC $<
+
+light: light.o subroutine_Ed0moins_at_pixel.o Color.o takuvik.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -lm -lgfortran -o $@ $^
+
+light.o: light.c light.h Color.h takuvik.h
+	$(CC) $(CFLAGS) -c -fPIC $<
+
+# The shared library used by the python module
+# light.py containing the C function light.h:
+# get_array4d_itaucld_io3_ithetas_iwl_ed0minus(...).
+_light.so: light.o light_wrap.o subroutine_Ed0moins_at_pixel.o Color.o takuvik.o
+	$(CC) $(LDFLAGS) -lgfortran -o $@ -shared $^
+
+light_wrap.c: light.i numpy.i
+	swig -python $<
+
+light_wrap.o: light_wrap.c
+	$(CC) $(CFLAGS) -c -fPIC $<
+
+qaa4ppSW.o: qaa4ppSW.c qaa4ppSW.h params.h qaa.h Color.h
+	$(CC) $(CFLAGS) -fPIC -c $< -DTEST_QAA
+
+qaa4ppMA.o: qaa4ppMA.c qaa4ppMA.h params.h qaa.h Color.h
+	$(CC) $(CFLAGS) -fPIC -c $< -DTEST_QAA
+
+rscalc.o: rscalc.c rscalc.h
+	$(CC) $(CFLAGS) -fPIC -c $<
+
+subroutine_Ed0moins_at_pixel.o: subroutine_Ed0moins_at_pixel.f
+	$(FC) $(FFLAGS) -fPIC -c $<
+
+takuvik.o: takuvik.c takuvik.h
+	$(CC) $(CFLAGS) -fPIC -c $<
+
+test_DepthAPI: test_DepthAPI.o Depth.o general.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -lstdc++ -lm -o $@ $^
+
+test_DepthAPI.o: test_DepthAPI.c DepthAPI.h general.h
+	$(CC) $(CFLAGS) -c $<
+
+test_subroutine_Ed0moins_at_pixel: test_subroutine_Ed0moins_at_pixel.o \
+subroutine_Ed0moins_at_pixel.o takuvik.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+
+test_subroutine_Ed0moins_at_pixel.o: test_subroutine_Ed0moins_at_pixel.c \
+takuvik.h
+	$(CC) $(CFLAGS) -c $<

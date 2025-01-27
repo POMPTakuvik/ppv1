@@ -1,0 +1,125 @@
+Author: Maxime Benoit-Gagne
+Date of creation: July 29 2016
+
+###################### installation ######################
+
+See README.md
+
+###################### modifications ######################
+
+Date of modification: August 16 2016
+Description: Primary productivity with PPz default and PPz budget.
+Date of modification: November 24 2016
+Description:
+Version 1_2_3_0.
+Shall contain a(lambda, z) = a(lambda, z = 0) + a_phy(lambda, z) - a_phy(lambda, z = 0)
+Date of modification: December 5 2016
+Description:
+Version 1_2_4_0.
+Shall contain bb(lambda, z) = bb(lambda, z = 0, algo = Lee) + bb(lambda, z, algo = Wang) - bb(lambda, z = 0, algo = Wang)
+Version 1_2_5_0.
+No change in the outputs. Reengineering of thetas(t) only.
+Version 1_2_7_0.
+All the source code into one directory.
+Separate the files between source, inputs and outputs.
+Version 1_2_8_0.
+Zeu0.1%(t) and Zmax(t).
+Version 1_2_9_1.
+Use PPv0.36.0.0 and chlz 0.5.
+Version 1.2.10.0.
+Transfer automatically data from output-prod to PPv1 when output-prod is
+mounted.
+
+###################### Development and test ######################
+
+# Map and plot of 2006225
+
+Data 0
+- grid file:
+  Inputs/A45N.nc
+- rrs_file:
+  Inputs/2006/225/AM2006225_PP_v00_36_00_00.nc
+-chl_file:
+  Inputs/2006/225/A2006225_chlz_00_05.nc
+- atm_file:
+  Inputs/2006/225/AM2006225_PP_v00_36_00_00.nc
+- lut_ed0minus_file:
+  Inputs/Ed0moins_LUT.dat
+- geospatial_file:
+  Inputs/Province_Zbot_MODISA_L3binV2.nc
+
+Code 1
+- Source/run_all.sh
+  - calling write_outfiles_from_to.py
+    - calling remote_sensing.py
+      - calling get_array1d_idepth_pp.c
+
+Data 1
+- Outputs/2006/225/AM2006225_ppz_v01_02_10_01.nc
+- Outputs/2006/225/AM2006225_pph_v01_02_10_01.nc
+
+Code 2
+- Source/run_map.sh
+  - calling get_title.py
+  - calling get_bottomright.py
+  - calling map.sh
+    - calling call_NCTakuvik_2_GMT_txt.R
+      - calling takuvik.R
+  
+Data 3
+- Outputs/2006/225/AM2006225_ppz_v01_02_10_01.jpg
+- Outputs/2006/225/AM2006225_pph_v01_02_10_01.jpg
+
+Data 4
+- Inputs/2006/225/AM2006225_PP_v00_36_00_00.nc
+- Outputs/2006/225/AM2006225_pph_v01_02_10_01.nc
+- Outputs/2006/225/AM2006225_ppz_v01_02_10_01.nc
+
+Code 4a
+- Source/run_compare.py
+  - calling compare.R
+
+Data 5a
+- Outputs/2006/225/1_2_10_1pph_vs_0_36_0_0pph.jpg
+- Outputs/2006/225/1_2_10_1ppz_vs_0_36_0_0pph.jpg
+- Outputs/2006/225/1_2_10_1ppz_vs_1_2_10_1pph.jpg
+
+Code 4b
+- stat.Rmd
+
+Data 5b
+- Outputs/2006/225/stat.pdf
+
+###################### Production ######################
+
+# Daily files from 2014152 to 2014273
+
+Data 0
+- grid file:
+  Inputs/A45N.nc
+  from
+  /Volumes/output-prod/Takuvik/Teledetection/Grid/trunk/201510151636/A45N.nc
+- rrs_file:
+  /Volumes/output-prod/Takuvik/Teledetection/Couleur/SORTIES/36_0_0/NOCLIM/2014/DDD/AM2014DDD_PP.nc with DDD from 2014152 to 2014273
+-chl_file:
+  /Volumes/output-prod/Takuvik/Teledetection/All/Daily/2014/DDD/A2014DDD_chlz_00_05.nc with DDD from 2014152 to 2014273
+- atm_file:
+  /Volumes/output-prod/Takuvik/Teledetection/Couleur/SORTIES/36_0_0/NOCLIM/2014/DDD/AM2014DDD_PP.nc from 2014152 to 2014273
+- lut_ed0minus_file:
+  Inputs/Ed0moins_LUT.dat
+  from
+  /Volumes/taku-njall/LUTS/Ed0moins_LUT.dat
+- geospatial_file:
+  Inputs/Province_Zbot_MODISA_L3binV2.nc
+  from
+  /Volumes/output-prod/Takuvik/Teledetection/Couleur/SORTIES/Bathymetre/Province_Zbot_MODISA_L3binV2.nc
+
+Code 1
+- Source/run_all.sh
+  - write_outfiles_from_to.py
+    - calling remote_sensing.py
+      - calling get_array1d_idepth_pp.c
+
+Data 1
+- /Volumes/output-dev/Takuvik/Teledetection/Products/pp/1_2_10_1/2014/DDD/AM2014DDD_pph.nc from 2014152 to 2014273
+- /Volumes/output-dev/Takuvik/Teledetection/Products/pp/1_2_10_1/2014/DDD/AM2014DDD_ppz.nc from 2014152 to 2014273
