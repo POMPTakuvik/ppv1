@@ -30,8 +30,6 @@ docker login
 docker pull takuvik/ppv1
 ```
 
-```
-
 ## Configure PPv1 input files
 
 A JSON configuration file is needed to run PPv1. This file provides information about the user inputs to be used within PPv1.
