@@ -1,4 +1,4 @@
-# ppv1
+# Takuvik net primary production model
 
 The Takuvik model is a light photosynthesis model that uses satellite data of chlorophyll-a to estimate the net primary production (NPP) in the Arctic Ocean.
 
@@ -6,7 +6,7 @@ The methodology of the NPP model was first published by Belanger et al. 2013 (do
 
 Go to trunk > Source to begin.
 
-# Takuvik net primary production model (starter guide)
+# Starter guide
 
 This document provides general information to quickly start with PPv1.
 
