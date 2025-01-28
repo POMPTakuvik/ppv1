@@ -2,7 +2,7 @@
 
 The Takuvik model is a light photosynthesis model that uses satellite data of chlorophyll-a to estimate the net primary production (NPP) in the Arctic Ocean.
 
-The methodology of the NPP model was first published by Belanger et al. 2013 (doi:10.5194/bg-10-4087-2013). The NPP codes from Belanger et al. 2013 was modified for vertically resolved chl-a according to Ardyna et al 2013 (doi:10.5194/bg-10-4383-2013). The model was originally run using MODIS reflectances as input data. Currently the model has been adapted by the Takuvik group to use reflectances from the ESA CCI v6.0 product.
+The methodology of the NPP model was first published by Belanger et al. 2013 (doi:10.5194/bg-10-4087-2013). The NPP codes from Belanger et al. 2013 was modified for vertically resolved chl-a according to Ardyna et al 2013 (doi:10.5194/bg-10-4383-2013). The model was originally run using MODIS reflectances as input data. Currently the Takuvik NPP model has been adapted to use reflectances from the ESA OC-CCI v6.0 product.
 
 Go to trunk > Source to begin.
 
